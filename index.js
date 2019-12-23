@@ -23,13 +23,13 @@ program
         prompt([
             {
                 type: 'list',
-                name: 'collection',
+                name: 'database',
                 message: 'Select a collection',
                 choices: databaseList
             }
         ])
-        .then( ({collection}) => {
-            showDocuments(collection);
+        .then( ({database}) => {
+            showTables(database);
         });
 
         } catch(e){
@@ -51,12 +51,25 @@ const getDatabases = () => new Promise((resolve,reject) => {
 });
 
 
-const showDocuments = (collection) => {
+const tablesPrompt = {
+    type: 'list',
+    name: 'tables',
+    message: 'Select a Table',
+    choices: ['this']
+}
+
+
+const showTables = (db) => {
     // show all tables in database and prompt for task.
-    console.log(chalk.green.inverse(`Documents for ${collection}: `));
+    this.db = db;
+    console.log(chalk.green.inverse(`Tables for ${db}: `));
+    prompt(tablesPrompt);
 }
 
 
 //console.log(chalk.red('test'));
 
 program.parse(process.argv);
+
+// prompt help example
+// https://github.com/SBoudrias/Inquirer.js/blob/master/packages/inquirer/examples/hierarchical.js

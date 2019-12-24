@@ -12,21 +12,18 @@ const connect = (name) => {
 }
 
 
-const query = (qry, database) => {
+const listTables = async(qry, database) => {
     let sql = qry;
     let db = database;
-    let tables = [];
 
-    db.all(sql, [], (err, rows) => {
-        if(err){
-            throw err;
-        }
-        rows.forEach(row => {
-            tables.push(row.name);
+    return await new Promise((resolve, reject) => {
+        db.all(sql, [], (err, rows) => {
+            if(err){
+                throw err;
+            }
+            resolve(rows);
         });
-        return tables;
     });
-
 }
 
 
@@ -40,7 +37,7 @@ const query = (qry, database) => {
 
 module.exports = {
     connect,
-    query
+    listTables
 }
 
 

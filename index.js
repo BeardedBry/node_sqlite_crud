@@ -55,13 +55,6 @@ const listDatabases = () => new Promise((resolve,reject) => {
 });
 
 
-const tablesPrompt = {
-    type: 'list',
-    name: 'tables',
-    message: 'Select a Table',
-    choices: ['this']
-}
-
 
 const queryTables = async(chosenDb) => {
     // show all tables in database and prompt for task.
@@ -72,22 +65,29 @@ const queryTables = async(chosenDb) => {
         console.log(chalk.green.inverse(`Connected to the ${chosenDb} SQlite database`));
 
         // Query for list of tables:
-        const tables = await database.query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';", db);
-
+        // returns and array of table name objects.
+        const tables = await database.listTables("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';", db);
         console.log(chalk.green(`Listing Tables: `));
-
+        //console.log(tables);
         return tables;
 
     }catch(e){
         console.error(e);
     }
-    // this.db = db;
-    // console.log(chalk.green.inverse(`Tables for ${db}: `));
     // prompt(tablesPrompt);
 }
 
 
-//console.log(chalk.red('test'));
+// Prompt Question Functions
+
+const tablesPrompt = {
+    type: 'list',
+    name: 'tables',
+    message: 'Select a Table',
+    choices: ['this']
+}
+
+
 
 program.parse(process.argv);
 

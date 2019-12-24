@@ -15,27 +15,36 @@ program
         database.connect(name);
 });
 
+// Todo: Make initial choice "Create, Read, Update" 
+
+// Main program
 program
     .command('list')
     .description('list databases')
     .action( async ()=>{
         //const collectionList = get from db (async)
         try {
-        const databaseList = await listDatabases();
-        prompt([
-            {
-                type: 'list',
-                name: 'database',
-                message: 'Select a collection',
-                choices: databaseList
-            }
-        ])
-        .then( async({database}) => {
-            // 
-            const tabelList = await queryTables(database);
+            const databaseList = await listDatabases();
+            prompt([
+                {
+                    type: 'list',
+                    name: 'database',
+                    message: 'Select a collection',
+                    choices: databaseList
+                }
+            ])
+            .then( async({database}) => {
 
-        });
+                const tableList = await queryTables(database);
+                //console.log(tableList);
+                console.log(chalk.green("Listing Tables: "));
 
+                const tableChoice = await promptChooseFromList('table', 'Choose from a table', tableList);
+
+                console.log(tableChoice.table);
+                //TODO: Prompt for Read, Update, Delete 
+
+            });
         } catch(e){
             console.error(e);
             return;
@@ -67,7 +76,6 @@ const queryTables = async(chosenDb) => {
         // Query for list of tables:
         // returns and array of table name objects.
         const tables = await database.listTables("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';", db);
-        console.log(chalk.green(`Listing Tables: `));
         //console.log(tables);
         return tables;
 
@@ -78,14 +86,26 @@ const queryTables = async(chosenDb) => {
 }
 
 
+
+
+
 // Prompt Question Functions
 
-const tablesPrompt = {
-    type: 'list',
-    name: 'tables',
-    message: 'Select a Table',
-    choices: ['this']
+const promptChooseFromList = (name, message, list) => {
+
+    const tablesArray =  [];
+    list.forEach((item) => tablesArray.push(item.name));
+
+   return prompt([
+        {
+            type: 'list',
+            name: name,
+            message: message,
+            choices: tablesArray
+        }
+    ])
 }
+
 
 
 

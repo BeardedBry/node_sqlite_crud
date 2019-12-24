@@ -6,6 +6,8 @@ const path = require('path');
 const database = require('./db');
 
 
+let db = {};
+
 program
     .command('db <name>')
     .description('connect to a database')
@@ -19,7 +21,7 @@ program
     .action( async ()=>{
         //const collectionList = get from db (async)
         try {
-        const databaseList = await getDatabases();
+        const databaseList = await listDatabases();
         prompt([
             {
                 type: 'list',
@@ -28,8 +30,10 @@ program
                 choices: databaseList
             }
         ])
-        .then( ({database}) => {
-            showTables(database);
+        .then( async({database}) => {
+            // 
+            const tabelList = await queryTables(database);
+
         });
 
         } catch(e){
@@ -40,7 +44,7 @@ program
 
 
 
-const getDatabases = () => new Promise((resolve,reject) => {
+const listDatabases = () => new Promise((resolve,reject) => {
     
     fs.readdir( path.join(__dirname,'/db/'), (err, res) => {
         if(err){
@@ -59,11 +63,27 @@ const tablesPrompt = {
 }
 
 
-const showTables = (db) => {
+const queryTables = async(chosenDb) => {
     // show all tables in database and prompt for task.
-    this.db = db;
-    console.log(chalk.green.inverse(`Tables for ${db}: `));
-    prompt(tablesPrompt);
+
+    try {
+        // Connect to database:
+        db = await database.connect(chosenDb);
+        console.log(chalk.green.inverse(`Connected to the ${chosenDb} SQlite database`));
+
+        // Query for list of tables:
+        const tables = await database.query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';", db);
+
+        console.log(chalk.green(`Listing Tables: `));
+
+        return tables;
+
+    }catch(e){
+        console.error(e);
+    }
+    // this.db = db;
+    // console.log(chalk.green.inverse(`Tables for ${db}: `));
+    // prompt(tablesPrompt);
 }
 
 
